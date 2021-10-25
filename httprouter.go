@@ -18,7 +18,12 @@ func (router Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	} else {
-		routers.handlerByMethod(r.Method)
+		h, err := routers.handlerByMethod(r.Method)
+		if err != nil {
+			http.NotFound(w, r)
+			return
+		}
+		h.ServeHTTP(w, r)
 	}
 }
 

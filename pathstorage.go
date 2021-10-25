@@ -12,7 +12,7 @@ type pathRouter struct {
 
 func (pr pathRouter) handlerByMethod(method string) (handler http.Handler, err error) {
 	if pr.methodHandler == nil && pr.defaultHandler == nil {
-		err = errors.New("no_handlers_defined_for_path")
+		err = errors.New("not_found")
 		return
 	}
 
@@ -26,7 +26,7 @@ func (pr pathRouter) handlerByMethod(method string) (handler http.Handler, err e
 		}
 	}
 
-	return nil, errors.New("handler_for_method_not_found")
+	return nil, errors.New("not_found")
 }
 
 func (pr *pathRouter) registerDefaultHandler(handler http.Handler) {
