@@ -2,7 +2,6 @@ package httprouter
 
 import (
 	"net/http"
-	"strings"
 )
 
 type Router struct {
@@ -11,9 +10,6 @@ type Router struct {
 
 func (router Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
-	if strings.HasPrefix(path, "/") {
-		path = path[1:]
-	}
 	if routers, ok := router.routers[path]; !ok {
 		http.NotFound(w, r)
 		return
@@ -27,7 +23,7 @@ func (router Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (router Router) Register(handler http.Handler, path string, methods ...string) (err error) {
+func (router *Router) Register(handler http.Handler, path string, methods ...string) (err error) {
 	if router.routers == nil {
 		router.routers = map[string]pathRouter{}
 	}
@@ -40,5 +36,6 @@ func (router Router) Register(handler http.Handler, path string, methods ...stri
 	} else {
 		p.registerDefaultHandler(handler)
 	}
+	router.routers[path] = p
 	return
 }
