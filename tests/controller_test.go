@@ -74,6 +74,10 @@ func TestController(t *testing.T) {
 			Method:   "DELETE",
 			Response: "DELETE Handler Called",
 		},
+		{
+			Method:   "CUSTOM",
+			Response: "404 page not found\n",
+		},
 	}
 	for _, datum := range data {
 		response, err := testController(HelloController{}, datum.Method)
