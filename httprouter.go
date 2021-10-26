@@ -1,7 +1,7 @@
 package httprouter
 
 import (
-	"fmt"
+	"errors"
 	"net/http"
 	"path"
 	"runtime"
@@ -43,10 +43,20 @@ func (router Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func (router *Router) Register(handler http.Handler, methods ...string) (err error) {
-	// TODO: Will complete this part
-	_, file, line, ok := runtime.Caller(1)
-	fmt.Println(file, path.Dir(file), line, ok)
+func (router *Router) Register(handler http.Handler) (err error) {
+	_, file, _, ok := runtime.Caller(1)
+	if !ok {
+		err = errors.New("cant_detect_package")
+		return
+	}
+	index := strings.Index(file, "/api/")
+	if index == -1 {
+		err = errors.New("api_path_not_found")
+		return
+	}
+
+	file = path.Dir(file[index+len("/api"):])
+	router.Delegate(handler, file)
 	return
 }
 

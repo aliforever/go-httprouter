@@ -1,14 +1,13 @@
-package tests
+package main
 
 import (
 	"fmt"
 	"net/http"
-	"testing"
 
 	"github.com/aliforever/go-httprouter"
 )
 
-func TestRegister(t *testing.T) {
+func main() {
 	var router httprouter.Router
 
 	err := router.Register(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
