@@ -15,26 +15,47 @@ type Router struct {
 }
 
 func (router Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	path := r.URL.Path
-	if router.delegates != nil {
-		for key, handler := range router.delegates {
-			if strings.HasPrefix(path, key) {
-				handler.ServeHTTP(w, r)
-				return
-			}
-		}
-	}
+	route := r.URL.Path
 
-	if h, ok := router.routers[path]; ok {
-		handler, err := h.handlerByMethod(r.Method)
+	var (
+		hasOtherMethods bool
+		handler         http.Handler
+		err             error
+	)
+
+	if h, ok := router.routers[route]; ok {
+		handler, hasOtherMethods, err = h.handlerByMethod(r.Method)
 		if err == nil {
 			handler.ServeHTTP(w, r)
 			return
 		}
 	}
 
-	if defaultHandler, ok := router.defaultHandler[path]; ok {
+	if router.delegates != nil {
+		for key, handler := range router.delegates {
+			if strings.HasPrefix(route, key) {
+				handler.ServeHTTP(w, r)
+				return
+			}
+		}
+	}
+
+	if defaultHandler, ok := router.defaultHandler[route]; ok {
 		defaultHandler.ServeHTTP(w, r)
+		return
+	}
+
+	if router.delegates != nil {
+		for key, handler := range router.delegates {
+			if strings.HasPrefix(route, key) {
+				handler.ServeHTTP(w, r)
+				return
+			}
+		}
+	}
+
+	if hasOtherMethods {
+		http.Error(w, "method_not_allowed", http.StatusMethodNotAllowed)
 		return
 	}
 

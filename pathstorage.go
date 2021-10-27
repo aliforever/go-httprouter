@@ -10,23 +10,23 @@ type pathRouter struct {
 	defaultHandler http.Handler
 }
 
-func (pr pathRouter) handlerByMethod(method string) (handler http.Handler, err error) {
+func (pr pathRouter) handlerByMethod(method string) (handler http.Handler, hasOtherMethods bool, err error) {
 	if pr.methodHandler == nil && pr.defaultHandler == nil {
 		err = errors.New("not_found")
 		return
 	}
 
 	if pr.methodHandler == nil {
-		return pr.defaultHandler, nil
+		return pr.defaultHandler, false, nil
 	}
 
 	for meth, handler := range pr.methodHandler {
 		if meth == method {
-			return handler, nil
+			return handler, true, nil
 		}
 	}
 
-	return nil, errors.New("not_found")
+	return nil, true, errors.New("not_found")
 }
 
 func (pr *pathRouter) registerDefaultHandler(handler http.Handler) {
