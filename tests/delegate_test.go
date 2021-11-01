@@ -13,7 +13,7 @@ import (
 func TestDelegate(t *testing.T) {
 	var router httprouter.Router
 
-	router.Delegate(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+	router.RegisterDelegatePath(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		writer.Write([]byte(fmt.Sprintf("Delegate Handler Called for Path: %s", request.URL.Path)))
 	}), "/images/")
 
@@ -59,11 +59,11 @@ func TestDelegate(t *testing.T) {
 	for _, datum := range data {
 		response, err := testDelegate(datum.Path)
 		if err != nil {
-			t.Errorf("Error testing route: %s => %s", HelloController{}.Path(), err)
+			t.Errorf("Error testing route: %s => %s", "/hello", err)
 			continue
 		}
 		if response != datum.Response {
-			t.Errorf("Test Failed for %s.\nExpected: %s\nActual: %s", HelloController{}.Path(), datum.Response, response)
+			t.Errorf("Test Failed for %s.\nExpected: %s\nActual: %s", "/hello", datum.Response, response)
 			continue
 		}
 	}

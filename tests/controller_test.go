@@ -12,10 +12,6 @@ import (
 
 type HelloController struct{}
 
-func (c HelloController) Path() string {
-	return "/hello"
-}
-
 func (c HelloController) GET(writer http.ResponseWriter, request *http.Request) {
 	writer.Write([]byte("GET Handler Called"))
 }
@@ -38,7 +34,7 @@ func (c HelloController) DELETE(writer http.ResponseWriter, request *http.Reques
 
 func TestController(t *testing.T) {
 	var router httprouter.Router
-	router.Controller(HelloController{})
+	router.RegisterControllerPath(HelloController{}, "/hello")
 
 	go func() {
 		err := http.ListenAndServe("localhost:8080", router)
@@ -76,25 +72,25 @@ func TestController(t *testing.T) {
 		},
 		{
 			Method:   "CUSTOM",
-			Response: "404 page not found\n",
+			Response: "method_not_allowed\n",
 		},
 	}
 	for _, datum := range data {
-		response, err := testController(HelloController{}, datum.Method)
+		response, err := testController(datum.Method)
 		if err != nil {
-			t.Errorf("Error testing route: %s => %s", HelloController{}.Path(), err)
+			t.Errorf("Error testing route: %s => %s", "/hello", err)
 			continue
 		}
 		if response != datum.Response {
-			t.Errorf("Test Failed for %s.\nExpected: %s\nActual: %s", HelloController{}.Path(), datum.Response, response)
+			t.Errorf("Test Failed for %s.\nExpected: %s\nActual: %s", "/hello", datum.Response, response)
 			continue
 		}
 	}
 }
 
-func testController(controller httprouter.Controller, method string) (response string, err error) {
+func testController(method string) (response string, err error) {
 	var req *http.Request
-	req, err = http.NewRequest(method, "http://localhost:8080"+controller.Path(), nil)
+	req, err = http.NewRequest(method, "http://localhost:8080/hello", nil)
 	if err != nil {
 		return
 	}

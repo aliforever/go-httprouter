@@ -59,7 +59,7 @@ func TestRegisterPath(t *testing.T) {
 	var router httprouter.Router
 
 	for i := range data {
-		router.RegisterPath(http.HandlerFunc(data[i].handler), data[i].route, data[i].allowedMethods...)
+		router.RegisterPathMethods(http.HandlerFunc(data[i].handler), data[i].route, data[i].allowedMethods...)
 	}
 
 	go func() {
